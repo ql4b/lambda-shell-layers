@@ -2,7 +2,9 @@
 
 set -e
 
-LAYERS=(qrencode htmlq imagemagick pandoc sqlite)
+# LAYERS=(qrencode htmlq imagemagick pandoc sqlite)
+LAYERS=(htmlq qrencode yq)
+
 
 echo "Building all lambda-shell-layers..."
 

@@ -7,7 +7,8 @@ AWS_REGION="${AWS_REGION:-us-east-1}"
 
 if [ -z "$LAYER_NAME" ]; then
     echo "Usage: $0 <layer-name>"
-    echo "Available layers: qrencode, htmlq, imagemagick, pandoc, sqlite"
+    # echo "Available layers: qrencode, htmlq, imagemagick, pandoc, sqlite"
+    echo "Available layers: qrencode, htmlq"
     exit 1
 fi
 
