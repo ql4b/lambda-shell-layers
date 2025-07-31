@@ -6,11 +6,13 @@ Pre-built Lambda layers containing common CLI tools and utilities for use with [
 
 ## Available Layers
 
+- **jq** - Command-line JSON processor
 - **qrencode** - QR code generation from command line
 - **htmlq** - HTML parsing and extraction tool
 - **imagemagick** - Image processing and manipulation
 - **pandoc** - Document conversion between formats
 - **sqlite** - Lightweight database engine
+- **yq** - command-line data file processor
 
 ## Quick Start
 
