@@ -9,10 +9,10 @@ Pre-built Lambda layers containing common CLI tools and utilities for use with [
 - **jq** - Command-line JSON processor
 - **qrencode** - QR code generation from command line
 - **htmlq** - HTML parsing and extraction tool
-- **imagemagick** - Image processing and manipulation
-- **pandoc** - Document conversion between formats
-- **sqlite** - Lightweight database engine
-- **yq** - command-line data file processor
+- **yq** - YAML/XML/JSON processing tool
+- **http-cli** - Minimal HTTP client for shell scripts
+- **pcre2grep** - Perl-compatible regex pattern matching
+- **uuid** - UUID generation utility
 
 ## Quick Start
 
@@ -79,12 +79,33 @@ api_handler() {
 }
 ```
 
-### Image Processing
+### HTTP Requests
 
 ```bash
-# Resize image
+# Make HTTP requests
 api_handler() {
-    convert /tmp/input.jpg -resize 300x300 /tmp/output.jpg
+    local response=$(http-cli --header "Content-Type: application/json" https://api.example.com)
+    echo "$response" | jq '.data'
+}
+```
+
+### Pattern Matching
+
+```bash
+# Find patterns in text
+api_handler() {
+    local text="$1"
+    echo "$text" | pcre2grep -o "[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}" --ignore-case
+}
+```
+
+### Generate UUIDs
+
+```bash
+# Generate a UUID
+api_handler() {
+    local uuid=$(uuidgen)
+    echo "Generated UUID: $uuid"
 }
 ```
 
