@@ -48,3 +48,7 @@ cd ..
 
 echo "✓ Layer built: $LAYER_NAME-layer.zip"
 echo "✓ Size: $(du -h "$LAYER_NAME-layer.zip" | cut -f1)"
+
+# Test the binary in Docker environment
+echo "Testing jq in Docker environment..."
+docker run --entrypoint /bin/sh --rm lambda-layer-$LAYER_NAME -c "echo '{\"key\": \"value\"}' | /opt/bin/jq .key && echo '✓ jq test passed'"

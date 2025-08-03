@@ -28,4 +28,4 @@ echo "Size: $(du -h $LAYER_NAME-layer.zip | cut -f1)"
 # Test the binary (use builder stage since scratch has no shell)
 echo "Testing binary..."
 docker build --target qrencode-builder -t lambda-shell-$LAYER_NAME-test .
-docker run --rm lambda-shell-$LAYER_NAME-test /opt/bin/qrencode --help || echo "Binary test completed"
+docker run --entrypoint /bin/sh --rm lambda-shell-$LAYER_NAME-test -c "/opt/bin/qrencode --version && echo '✓ qrencode test passed'" || echo "Binary test completed"

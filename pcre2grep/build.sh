@@ -2,7 +2,7 @@
 
 set -e
 
-LAYER_NAME="yq"
+LAYER_NAME="pcre2grep"
 LAYER_DIR="layer"
 
 echo "Building $LAYER_NAME layer..."
@@ -27,5 +27,5 @@ echo "Size: $(du -h $LAYER_NAME-layer.zip | cut -f1)"
 
 # Test the binary (use builder stage since scratch has no shell)
 echo "Testing binary..."
-docker build --target yq-builder -t lambda-shell-$LAYER_NAME-test .
-docker run --entrypoint /bin/sh --rm lambda-shell-$LAYER_NAME-test -c "/opt/bin/yq --version && echo '✓ yq test passed'"
+docker build --target pcre2grep-installer -t lambda-shell-$LAYER_NAME-test .
+docker run --entrypoint="/bin/sh" --rm lambda-shell-$LAYER_NAME-test -c "echo -e 'body { color: #ff3a27; background: #222; }' | pcre2grep '#[0-9a-fA-F]{3,6}' && echo '✓ pcre2grep test passed'"

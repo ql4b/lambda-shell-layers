@@ -28,4 +28,4 @@ echo "Size: $(du -h $LAYER_NAME-layer.zip | cut -f1)"
 # Test the binary (use builder stage since scratch has no shell)
 echo "Testing binary..."
 docker build --target htmlq-builder -t lambda-shell-$LAYER_NAME-test .
-echo '<html><body><h1>Test</h1></body></html>' | docker run --rm -i lambda-shell-$LAYER_NAME-test /opt/bin/htmlq 'h1' --text
+docker run --entrypoint /bin/sh --rm lambda-shell-$LAYER_NAME-test -c "echo '<html><body><h1>Test</h1></body></html>' | /opt/bin/htmlq 'h1' --text && echo '✓ htmlq test passed'"
