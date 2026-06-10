@@ -16,45 +16,42 @@ Pre-built Lambda layers containing common CLI tools and utilities for use with [
 
 ## Quick Start
 
-### Using Pre-built Layers
+### Using GitHub Release Artifacts
 
-```yaml
-# serverless.yml
-provider:
-  layers:
-    - arn:aws:lambda:us-east-1:ACCOUNT:layer:ql4b-shell-qrencode:1
-    - arn:aws:lambda:us-east-1:ACCOUNT:layer:ql4b-shell-htmlq:1
+Each release publishes architecture-specific zips:
 
-functions:
-  handler:
-    environment:
-      PATH: "/opt/bin:${env:PATH}"
 ```
+jq-arm64-layer.zip
+jq-x86_64-layer.zip
+htmlq-arm64-layer.zip
+...
+```
+
+Download from [Releases](https://github.com/ql4b/lambda-shell-layers/releases) and use with Terraform `source_url` or upload directly to AWS.
 
 ### Building Your Own
 
 ```bash
 # Build specific layer
-cd qrencode && ./build.sh
+cd jq && ./build.sh
 
 # Build all layers
 ./scripts/build-all.sh
 
-# Deploy layer to AWS
-./scripts/deploy-layer.sh qrencode
+# Build for specific architecture
+ARCH=x86_64 ./scripts/build-all.sh
 ```
 
-## Layer Structure
+## Layer Zip Structure
 
-All layers follow the same structure:
+All layer zips contain paths relative to `/opt`:
 
 ```
-/opt/
-├── bin/           # Executable binaries
-└── lib/           # Shared libraries (if needed)
+bin/              # Executable binaries
+lib/              # Shared libraries (if needed)
 ```
 
-Binaries are placed in `/opt/bin` and automatically available when you add `/opt/bin` to your `PATH`.
+AWS Lambda extracts layer zips into `/opt`, so binaries end up at `/opt/bin/<tool>` and are available in PATH.
 
 ## Usage Examples
 
@@ -125,31 +122,63 @@ Each layer includes:
 
 ## Integration with Terraform
 
+Using [terraform-aws-lambda-layer](https://github.com/ql4b/terraform-aws-lambda-layer) and [terraform-aws-lambda-shell-runtime-layer](https://github.com/ql4b/terraform-aws-lambda-shell-runtime-layer) modules:
+
 ```hcl
-# Reference pre-built layer
-data "aws_lambda_layer_version" "qrencode" {
-  layer_name = "ql4b-shell-qrencode"
+# Shell runtime (required)
+module "runtime" {
+  source = "git::https://github.com/ql4b/terraform-aws-lambda-shell-runtime-layer.git?ref=v1.0.0"
+
+  name         = "shell-runtime"
+  architecture = "arm64"
+}
+
+# From GitHub Release (recommended)
+module "jq" {
+  source = "git::https://github.com/ql4b/terraform-aws-lambda-layer.git?ref=v1.2.0"
+
+  name       = "jq"
+  source_url = "https://github.com/ql4b/lambda-shell-layers/releases/download/v1.0.0/jq-arm64-layer.zip"
+}
+
+# From local source directory
+module "jq" {
+  source = "git::https://github.com/ql4b/terraform-aws-lambda-layer.git?ref=v1.2.0"
+
+  name       = "jq"
+  source_dir = "path/to/lambda-shell-layers/jq/layer/opt"
 }
 
 # Use in function
-resource "aws_lambda_function" "handler" {
-  layers = [data.aws_lambda_layer_version.qrencode.arn]
-  
-  environment {
-    variables = {
-      PATH = "/opt/bin:${env:PATH}"
-    }
-  }
+module "handler" {
+  source = "git::https://github.com/ql4b/terraform-aws-lambda-function.git?ref=v1.1.0"
+
+  name         = "my-function"
+  runtime      = "provided.al2023"
+  handler      = "handler.run"
+  architecture = "arm64"
+
+  layers = [
+    module.runtime.layer_arn,
+    module.jq.layer_arn
+  ]
 }
 ```
+
+## Releases
+
+Tagging `v*` triggers the GitHub Actions workflow which:
+
+1. Builds all layers for both `arm64` and `x86_64`
+2. Publishes architecture-specific zips as release assets
 
 ## Contributing
 
 To add a new layer:
 
 1. Create directory with layer name
-2. Add Dockerfile with multi-stage build
-3. Create build.sh script
+2. Add Dockerfile with multi-stage build (binaries go to `/opt/bin`)
+3. Create `build.sh` — zip from `layer/opt/` so paths are relative to `/opt`
 4. Add README.md with usage examples
 5. Test with lambda-shell-runtime
 
