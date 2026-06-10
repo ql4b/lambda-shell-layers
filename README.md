@@ -138,7 +138,7 @@ module "jq" {
   source = "git::https://github.com/ql4b/terraform-aws-lambda-layer.git?ref=v1.2.0"
 
   name       = "jq"
-  source_url = "https://github.com/ql4b/lambda-shell-layers/releases/download/v1.0.0/jq-arm64-layer.zip"
+  source_url = "https://github.com/ql4b/lambda-shell-layers/releases/download/v0.0.3/jq-arm64-layer.zip"
 }
 
 # From local source directory
