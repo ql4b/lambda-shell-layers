@@ -1,35 +1,9 @@
-# Multi-stage build for jq static binary
-FROM public.ecr.aws/lambda/provided:al2023 AS builder
+FROM amazonlinux:2023 AS jq-builder
 
-# Install build dependencies
-RUN dnf update -y && \
-    dnf install -y \
-    gcc \
-    make \
-    autoconf \
-    automake \
-    libtool \
-    git \
-    oniguruma-devel \
-    && dnf clean all
+RUN mkdir -p /opt/bin && \
+    curl -L "https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')" \
+    -o /opt/bin/jq && \
+    chmod +x /opt/bin/jq
 
-# Build jq from source for static linking
-WORKDIR /build
-RUN git clone --depth 1 --branch jq-1.7.1 https://github.com/jqlang/jq.git
-WORKDIR /build/jq
-
-# Configure and build static binary
-RUN git submodule update --init && \
-    autoreconf -fi && \
-    ./configure --disable-maintainer-mode --enable-static --disable-shared --with-oniguruma=builtin && \
-    make LDFLAGS="-all-static -static" -j$(nproc)
-
-# Verify the binary is static
-RUN ldd jq || echo "Static binary confirmed"
-
-# Final stage - create layer structure
-FROM public.ecr.aws/lambda/provided:al2023
-COPY --from=builder /build/jq/jq /opt/bin/jq
-
-# Set executable permissions
-RUN chmod +x /opt/bin/jq
+FROM scratch
+COPY --from=jq-builder /opt /opt

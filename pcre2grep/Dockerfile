@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/provided:al2023 AS pcre2grep-installer
+FROM amazonlinux:2023 AS pcre2grep-installer
 
 # Install pcre2-tools
 RUN dnf install -y pcre2-tools

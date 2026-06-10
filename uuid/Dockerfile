@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/provided:al2023 AS uuid-builder
+FROM amazonlinux:2023 AS uuid-builder
 
 # Install util-linux which includes uuidgen
 RUN dnf install -y util-linux
@@ -7,7 +7,7 @@ RUN dnf install -y util-linux
 RUN uuidgen
 
 # Final stage - create layer structure
-FROM public.ecr.aws/lambda/provided:al2023
+FROM amazonlinux:2023
 
 # Create directory structure
 RUN mkdir -p /opt/bin

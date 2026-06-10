@@ -2,21 +2,20 @@
 
 set -e
 
-# LAYERS=(qrencode htmlq imagemagick pandoc sqlite)
-LAYERS=(htmlq qrencode yq)
+LAYERS=(jq htmlq yq qrencode pcre2grep uuid http-cli curl-impesonate)
 
-
-echo "Building all lambda-shell-layers..."
+ARCH=${ARCH:-$(uname -m)}
+echo "Building all lambda-shell-layers for ${ARCH}..."
 
 for layer in "${LAYERS[@]}"; do
-    if [ -d "$layer" ]; then
+    if [ -d "$layer" ] && [ -f "$layer/build.sh" ]; then
         echo "Building $layer..."
         cd "$layer"
-        ./build.sh
+        ARCH=$ARCH ./build.sh
         cd ..
         echo "✓ $layer built successfully"
     else
-        echo "⚠ $layer directory not found, skipping"
+        echo "⚠ $layer directory or build.sh not found, skipping"
     fi
 done
 

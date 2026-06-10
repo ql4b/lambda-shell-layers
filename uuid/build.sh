@@ -5,17 +5,24 @@ set -e
 LAYER_NAME="uuid"
 LAYER_DIR="layer"
 
-echo "Building $LAYER_NAME layer..."
+ARCH=${ARCH:-$(uname -m)}
+if [[ "$ARCH" == "x86_64" ]]; then
+    PLATFORM="linux/amd64"
+else
+    PLATFORM="linux/arm64"
+fi
+
+echo "Building $LAYER_NAME layer for $PLATFORM..."
 
 # Clean previous builds
 rm -rf $LAYER_DIR
 mkdir -p $LAYER_DIR/opt/bin
 
 # Build Docker image and extract binary
-docker build -t lambda-layer-$LAYER_NAME .
+docker build --platform $PLATFORM -t lambda-layer-$LAYER_NAME .
 
 # Create temporary container and copy binary
-CONTAINER_ID=$(docker create lambda-layer-$LAYER_NAME)
+CONTAINER_ID=$(docker create --platform $PLATFORM lambda-layer-$LAYER_NAME)
 docker cp "$CONTAINER_ID:/opt/bin/uuidgen" "$LAYER_DIR/opt/bin/"
 docker rm "$CONTAINER_ID"
 
@@ -32,4 +39,4 @@ echo "Size: $(du -h ${LAYER_NAME}-layer.zip | cut -f1)"
 
 # Test the binary
 echo "Testing uuidgen..."
-docker run --entrypoint /bin/sh --rm lambda-layer-$LAYER_NAME -c "/opt/bin/uuidgen && echo '✓ uuidgen test passed'"
+docker run --platform $PLATFORM --entrypoint /bin/sh --rm lambda-layer-$LAYER_NAME -c "/opt/bin/uuidgen && echo '✓ uuidgen test passed'"

@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/provided:al2023 AS yq-builder
+FROM amazonlinux:2023 AS yq-builder
 
 # Get architecture
 RUN mkdir -p /opt/bin && \

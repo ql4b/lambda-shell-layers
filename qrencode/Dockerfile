@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/provided:al2023 AS qrencode-builder
+FROM amazonlinux:2023 AS qrencode-builder
 
 RUN dnf install -y \
     autoconf automake libtool m4 gettext gcc make \
