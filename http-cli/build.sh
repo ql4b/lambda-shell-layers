@@ -18,10 +18,10 @@ curl -sL https://raw.githubusercontent.com/ql4b/http-cli/refs/heads/main/http-cl
 # Make executable
 chmod +x $LAYER_DIR/opt/bin/http-cli
 
-# Create layer zip
-cd $LAYER_DIR
-zip -r ../${LAYER_NAME}-layer.zip .
-cd ..
+# Create layer zip (paths relative to /opt)
+cd $LAYER_DIR/opt
+zip -r ../../${LAYER_NAME}-layer.zip .
+cd ../..
 
 echo "Layer built: ${LAYER_NAME}-layer.zip"
 echo "Size: $(du -h ${LAYER_NAME}-layer.zip | cut -f1)"

@@ -3,14 +3,14 @@ name: Build and Release Layers
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [arm64, x86_64]
+        arch: [arm64, x86_64] #
 
     steps:
       - uses: actions/checkout@v4

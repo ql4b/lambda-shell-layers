@@ -43,10 +43,10 @@ else
     echo "Cross-compiled binary - skipping execution test"
 fi
 
-# Create layer zip (opt/ should be in root of zip)
-cd "$BUILD_DIR"
-zip -r "../$LAYER_NAME-layer.zip" opt/
-cd ..
+# Create layer zip (paths relative to /opt)
+cd "$BUILD_DIR/opt"
+zip -r "../../$LAYER_NAME-layer.zip" .
+cd ../..
 
 echo "✓ Layer built: $LAYER_NAME-layer.zip"
 echo "✓ Size: $(du -h "$LAYER_NAME-layer.zip" | cut -f1)"

@@ -29,10 +29,10 @@ docker rm "$CONTAINER_ID"
 # Make binary executable
 chmod +x "$LAYER_DIR/opt/bin/uuidgen"
 
-# Create layer zip
-cd $LAYER_DIR
-zip -r ../${LAYER_NAME}-layer.zip .
-cd ..
+# Create layer zip (paths relative to /opt)
+cd $LAYER_DIR/opt
+zip -r ../../${LAYER_NAME}-layer.zip .
+cd ../..
 
 echo "Layer built: ${LAYER_NAME}-layer.zip"
 echo "Size: $(du -h ${LAYER_NAME}-layer.zip | cut -f1)"

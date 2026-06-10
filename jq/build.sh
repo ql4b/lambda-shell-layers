@@ -26,10 +26,10 @@ CONTAINER_ID=$(docker create --platform $PLATFORM lambda-layer-$LAYER_NAME true)
 docker cp "$CONTAINER_ID:/opt" "$LAYER_DIR/"
 docker rm "$CONTAINER_ID"
 
-# Create layer zip
-cd "$LAYER_DIR"
-zip -r ../$LAYER_NAME-layer.zip .
-cd ..
+# Create layer zip (zip from inside opt/ so paths are relative to /opt)
+cd "$LAYER_DIR/opt"
+zip -r ../../$LAYER_NAME-layer.zip .
+cd ../..
 
 echo "✓ Layer built: $LAYER_NAME-layer.zip"
 echo "✓ Size: $(du -h $LAYER_NAME-layer.zip | cut -f1)"
