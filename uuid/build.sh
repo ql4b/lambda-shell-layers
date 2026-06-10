@@ -16,18 +16,15 @@ echo "Building $LAYER_NAME layer for $PLATFORM..."
 
 # Clean previous builds
 rm -rf $LAYER_DIR
-mkdir -p $LAYER_DIR/opt/bin
+mkdir -p $LAYER_DIR
 
 # Build Docker image and extract binary
 docker build --platform $PLATFORM -t lambda-layer-$LAYER_NAME .
 
-# Create temporary container and copy binary
+# Create temporary container and copy opt contents
 CONTAINER_ID=$(docker create --platform $PLATFORM lambda-layer-$LAYER_NAME)
-docker cp "$CONTAINER_ID:/opt/bin/uuidgen" "$LAYER_DIR/opt/bin/"
+docker cp "$CONTAINER_ID:/opt" "$LAYER_DIR/"
 docker rm "$CONTAINER_ID"
-
-# Make binary executable
-chmod +x "$LAYER_DIR/opt/bin/uuidgen"
 
 # Create layer zip (paths relative to /opt)
 cd $LAYER_DIR/opt
