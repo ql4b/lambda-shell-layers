@@ -194,6 +194,3 @@ To add a new layer:
 - **Architecture**: `arm64`, `x86_64`
 - **Compatible with**: [terraform-aws-lambda-shell-runtime-layer](https://github.com/ql4b/terraform-aws-lambda-shell-runtime-layer)
 
----
-
-*Part of the [cloudless](https://github.com/ql4b/cloudless-api) ecosystem.*
