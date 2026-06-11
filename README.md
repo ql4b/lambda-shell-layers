@@ -167,10 +167,16 @@ module "handler" {
 
 ## Releases
 
-Tagging `v*` triggers the GitHub Actions workflow which:
+Pushing to `main` triggers the GitHub Actions workflow which:
 
 1. Builds all layers for both `arm64` and `x86_64`
-2. Publishes architecture-specific zips as release assets
+2. Determines the next version from commit messages using [semantic-release](https://github.com/semantic-release/semantic-release)
+3. Publishes architecture-specific zips as release assets
+
+Version is determined automatically from [Conventional Commits](https://www.conventionalcommits.org/):
+- `fix:` → patch release (e.g. `v1.0.1`)
+- `feat:` → minor release (e.g. `v1.1.0`)
+- `feat!:` / `BREAKING CHANGE:` → major release (e.g. `v2.0.0`)
 
 ## Contributing
 
@@ -186,7 +192,7 @@ To add a new layer:
 
 - **Runtime**: `provided.al2023`
 - **Architecture**: `arm64`, `x86_64`
-- **Compatible with**: [lambda-shell-runtime](https://github.com/ql4b/lambda-shell-runtime)
+- **Compatible with**: [terraform-aws-lambda-shell-runtime-layer](https://github.com/ql4b/terraform-aws-lambda-shell-runtime-layer)
 
 ---
 
