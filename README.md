@@ -2,7 +2,7 @@
 
 > Lambda layers for shell runtime tools and utilities
 
-Pre-built Lambda layers containing common CLI tools and utilities for use with [lambda-shell-runtime](https://github.com/ql4b/lambda-shell-runtime). Each layer provides statically-linked binaries optimized for AWS Lambda.
+Pre-built Lambda layers containing common CLI tools and utilities for use with [terraform-aws-lambda-shell-runtime-layer](https://github.com/ql4b/terraform-aws-lambda-shell-runtime-layer). Each layer provides statically-linked binaries optimized for AWS Lambda.
 
 ## Available Layers
 
