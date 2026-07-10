@@ -2,7 +2,7 @@
 
 set -e
 
-LAYERS=(jq htmlq yq qrencode pcre2grep uuid http-cli)
+LAYERS=(jq htmlq yq qrencode pcre2grep uuid http-cli gzip)
 
 ARCH=${ARCH:-$(uname -m)}
 echo "Building all lambda-shell-layers for ${ARCH}..."
