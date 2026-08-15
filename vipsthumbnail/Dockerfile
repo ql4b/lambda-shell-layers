@@ -10,13 +10,14 @@ RUN dnf install -y \
     wget tar xz \
     && dnf clean all
 
-# Build libvips from source with static linking
+# Build libvips from source, install directly to /opt
 ARG VIPS_VERSION=8.16.1
 RUN wget -q https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.xz \
     && tar xf vips-${VIPS_VERSION}.tar.xz \
     && cd vips-${VIPS_VERSION} \
     && meson setup build \
-        --prefix=/usr/local \
+        --prefix=/opt \
+        --libdir=/opt/lib \
         --default-library=shared \
         --buildtype=release \
         -Dintrospection=disabled \
@@ -44,34 +45,33 @@ RUN wget -q https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION
     && ninja \
     && ninja install
 
-# Collect vipsthumbnail and its shared library dependencies
-RUN mkdir -p /opt/bin /opt/lib \
-    && cp /usr/local/bin/vipsthumbnail /opt/bin/vipsthumbnail \
-    && strip /opt/bin/vipsthumbnail \
-    && ldd /opt/bin/vipsthumbnail | grep "=> /" | awk '{print $3}' | while read lib; do \
-        # Only copy libs not present in the Lambda base image
-        case "$lib" in \
-            /lib64/libc.so*|/lib64/libm.so*|/lib64/libpthread.so*|/lib64/libdl.so*|/lib64/librt.so*|/lib64/ld-linux*) \
-                ;; \
-            *) \
-                cp "$lib" /opt/lib/ \
-                ;; \
-        esac; \
-    done \
-    && ldconfig /opt/lib
+# Register /opt/lib with the linker so ldd resolves correctly
+RUN echo "/opt/lib" > /etc/ld.so.conf.d/opt.conf && ldconfig
 
-# Also collect transitive deps of the copied libs
+# Copy system shared libraries that vipsthumbnail depends on into /opt/lib
+RUN ldd /opt/bin/vipsthumbnail | grep "=> /" | awk '{print $3}' | while read lib; do \
+        case "$lib" in \
+            /opt/lib/*) ;; \
+            /lib64/libc.so*|/lib64/libm.so*|/lib64/libpthread.so*|/lib64/libdl.so*|/lib64/librt.so*|/lib64/ld-linux*) ;; \
+            *) cp "$lib" /opt/lib/ ;; \
+        esac; \
+    done
+
+# Collect transitive deps of copied libs
 RUN for lib in /opt/lib/*.so*; do \
         ldd "$lib" 2>/dev/null | grep "=> /" | awk '{print $3}' | while read dep; do \
             case "$dep" in \
-                /lib64/libc.so*|/lib64/libm.so*|/lib64/libpthread.so*|/lib64/libdl.so*|/lib64/librt.so*|/lib64/ld-linux*) \
-                    ;; \
-                *) \
-                    [ ! -f "/opt/lib/$(basename $dep)" ] && cp "$dep" /opt/lib/ || true \
-                    ;; \
+                /opt/lib/*) ;; \
+                /lib64/libc.so*|/lib64/libm.so*|/lib64/libpthread.so*|/lib64/libdl.so*|/lib64/librt.so*|/lib64/ld-linux*) ;; \
+                *) [ ! -f "/opt/lib/$(basename $dep)" ] && cp "$dep" /opt/lib/ || true ;; \
             esac; \
         done; \
-    done && strip /opt/lib/*.so* 2>/dev/null || true
+    done
+
+# Strip and clean up non-essential files
+RUN strip /opt/bin/vipsthumbnail 2>/dev/null || true \
+    && strip /opt/lib/*.so* 2>/dev/null || true \
+    && rm -rf /opt/include /opt/share /opt/lib/pkgconfig /opt/lib/*.a /opt/lib/*.la
 
 # Create wrapper that sets LD_LIBRARY_PATH
 RUN mv /opt/bin/vipsthumbnail /opt/bin/vipsthumbnail.bin \
@@ -79,4 +79,5 @@ RUN mv /opt/bin/vipsthumbnail /opt/bin/vipsthumbnail.bin \
     && chmod +x /opt/bin/vipsthumbnail
 
 FROM scratch
-COPY --from=vips-builder /opt /opt
+COPY --from=vips-builder /opt/bin /opt/bin
+COPY --from=vips-builder /opt/lib /opt/lib
