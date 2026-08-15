@@ -34,8 +34,9 @@ cd ../..
 echo "✓ Layer built: $LAYER_NAME-layer.zip"
 echo "✓ Size: $(du -h $LAYER_NAME-layer.zip | cut -f1)"
 
-# Test the binary
+# Test the binary using the layer structure we just extracted
 echo "Testing vipsthumbnail..."
-docker build --platform $PLATFORM --target vips-builder -t lambda-layer-$LAYER_NAME-test .
-docker run --platform $PLATFORM --entrypoint /bin/sh --rm lambda-layer-$LAYER_NAME-test -c \
-    "export LD_LIBRARY_PATH=/opt/lib:\$LD_LIBRARY_PATH && /opt/bin/vipsthumbnail.bin --version && echo '✓ vipsthumbnail test passed'"
+docker run --platform $PLATFORM --rm \
+    -v "$(pwd)/$LAYER_DIR/opt:/opt:ro" \
+    amazonlinux:2023 \
+    /bin/sh -c "export LD_LIBRARY_PATH=/opt/lib:\$LD_LIBRARY_PATH && /opt/bin/vipsthumbnail.bin --version && echo '✓ vipsthumbnail test passed'"
