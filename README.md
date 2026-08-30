@@ -7,12 +7,14 @@ Pre-built Lambda layers containing common CLI tools and utilities for use with [
 ## Available Layers
 
 - **jq** - Command-line JSON processor
-- **qrencode** - QR code generation from command line
 - **htmlq** - HTML parsing and extraction tool
 - **yq** - YAML/XML/JSON processing tool
-- **http-cli** - Minimal HTTP client for shell scripts
+- **qrencode** - QR code generation from command line
 - **pcre2grep** - Perl-compatible regex pattern matching
 - **uuid** - UUID generation utility
+- **http-cli** - Minimal HTTP client for shell scripts
+- **gzip** - Gzip compression/decompression
+- **vipsthumbnail** - Fast image thumbnail generation via libvips
 
 ## Quick Start
 

@@ -4,9 +4,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
+      - '.kiro/**'
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
+      - '.kiro/**'
 
 permissions:
   issues: write
